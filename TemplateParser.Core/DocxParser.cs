@@ -1,4 +1,7 @@
 namespace TemplateParser.Core;
+using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml.Packaging;
+using System.Reflection;
 
 public sealed class DocxParser
 {
@@ -7,6 +10,22 @@ public sealed class DocxParser
         // TODO (Week 1-4): Implement core DOCX parsing here.
         // Recommended responsibilities for this method:
         // 1) [Week 1] Learn DOCX structure and print paragraphs from the document.
+        using (WordprocessingDocument wordprocessingDocument = WordprocessingDocument.Open(filePath, false))
+        {
+            Body? body = wordprocessingDocument?.MainDocumentPart?.Document?.Body;
+            ArgumentNullException.ThrowIfNull(body, "Document is empty.");
+
+            foreach (Paragraph p in body.Descendants<Paragraph>())
+            {
+                //extracting and displaying the text style
+                string?style = p?.ParagraphProperties?.ParagraphStyleId?.Val ?? "No Style";
+                Console.WriteLine(style);
+
+                //Extracting and displaying the actual text
+                string? text = p?.InnerText;
+                Console.WriteLine(text);
+            }
+        }
         // 2) [Week 2] Build section hierarchy using Word heading styles.
         // 3) [Week 3] Detect tables, lists, and images as structured content nodes.
         // 4) [Week 4] Add formatting heuristics for files missing heading styles.
