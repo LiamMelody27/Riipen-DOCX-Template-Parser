@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Packaging;
 using System.Reflection;
 using DocumentFormat.OpenXml.Bibliography;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 public sealed class DocxParser
 {
@@ -78,6 +79,7 @@ public sealed class DocxParser
                 // Determine order index among siblings, counts shared parentIds
                 int orderIndex = nodes.FindAll(n => n.ParentId == (parentStack.Count > 0 ? parentStack.Peek() : (Guid?)null)).Count();
 
+                
                 // Create and add the new node
                 Node node = new Node
                 {
@@ -89,11 +91,20 @@ public sealed class DocxParser
                     ParentId = parentStack.Count > 0 ? parentStack.Peek() : (Guid?)null,
                     MetadataJson = "{}" // metadata
                 };
+                node.MetadataJson = JsonSerializer.Serialize(node);
                 nodes.Add(node); // add new node to list, parentId points up the tree
                 parentStack.Push(node.Id); //new node becomes the current parent
 
                 //enque node to tree
             }
+
+            /*
+            foreach (var item in nodes)
+            {
+                Console.WriteLine($"Type: {item.Type}, Title: {item.Title}, OrderIndex: {item.OrderIndex}, ParentId: {item.ParentId}, MetaDataJson: {item.MetadataJson}");
+            }
+            */
+        
         }
         
         // 3) [Week 3] Detect tables, lists, and images as structured content nodes.
